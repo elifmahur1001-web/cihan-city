@@ -607,7 +607,166 @@ export class Car {
 
       ctx.fill();
     }
+    // BMW E30 özel görünümü
+    if (this.model === "E30") {
+      // Ana gövde
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.roundRect(
+        -width / 2,
+        -height / 2,
+        width,
+        height,
+        4
+      );
+      ctx.fill();
 
+      // Kaput
+      ctx.fillStyle = "rgba(255,255,255,0.10)";
+      ctx.fillRect(
+        width * 0.12,
+        -height / 2 + 3,
+        width * 0.30,
+        height - 6
+      );
+
+      // Siyah BMW böbrek ızgarası
+      ctx.fillStyle = "#101216";
+      ctx.fillRect(
+        width / 2 - 7,
+        -7,
+        5,
+        5
+      );
+
+      ctx.fillRect(
+        width / 2 - 7,
+        2,
+        5,
+        5
+      );
+
+      // E30 kabini
+      ctx.fillStyle = "#79a9bd";
+      ctx.beginPath();
+      ctx.roundRect(
+        -13,
+        -height / 2 + 4,
+        29,
+        height - 8,
+        3
+      );
+      ctx.fill();
+
+      // Ön ve arka cam ayrımı
+      ctx.fillStyle = "rgba(20,35,45,0.65)";
+      ctx.fillRect(
+        -7,
+        -height / 2 + 5,
+        3,
+        height - 10
+      );
+
+      ctx.fillRect(
+        8,
+        -height / 2 + 5,
+        3,
+        height - 10
+      );
+
+      // Siyah yan çıtalar
+      ctx.fillStyle = "#17191d";
+      ctx.fillRect(
+        -width / 2 + 7,
+        -height / 2 + 1,
+        width - 14,
+        3
+      );
+
+      ctx.fillRect(
+        -width / 2 + 7,
+        height / 2 - 4,
+        width - 14,
+        3
+      );
+
+      // Dört yuvarlak E30 farı
+      ctx.fillStyle = "#fff3a0";
+
+      ctx.beginPath();
+      ctx.arc(
+        width / 2 - 3,
+        -height / 2 + 8,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(
+        width / 2 - 3,
+        -height / 2 + 16,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(
+        width / 2 - 3,
+        height / 2 - 16,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(
+        width / 2 - 3,
+        height / 2 - 8,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      // Arka stoplar
+      ctx.fillStyle =
+        this.brakeLight > 0.1
+          ? "#ff2020"
+          : "#a51616";
+
+      ctx.fillRect(
+        -width / 2,
+        -height / 2 + 5,
+        5,
+        10
+      );
+
+      ctx.fillRect(
+        -width / 2,
+        height / 2 - 15,
+        5,
+        10
+      );
+
+      // E30 etiketi
+      ctx.rotate(-this.angle);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 10px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        "BMW E30",
+        0,
+        -height / 2 - 10
+      );
+
+      ctx.restore();
+      return;
+    }
     // Ana araç gövdesi
     ctx.fillStyle = this.color;
 
