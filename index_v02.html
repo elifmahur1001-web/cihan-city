@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b1017">
+<title>Cihan City Mobile v0.2</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b10;color:#fff;font-family:Arial,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hidden{display:none!important}
+#start,#dead{position:fixed;inset:0;z-index:30;background:radial-gradient(circle at 65% 25%,#4b2b32,#111a27 45%,#070a0f 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px}
+.logo{font-size:clamp(42px,11vw,78px);font-weight:1000;color:#ffd84d;letter-spacing:2px;text-shadow:0 7px 25px #000;margin:0}
+.sub{font-size:14px;letter-spacing:7px;color:#d9e4f7;margin:6px 0 28px}
+.mainBtn{border:0;border-radius:14px;background:#dca026;color:#111;padding:15px 28px;font-weight:1000;font-size:18px;min-width:220px;margin:6px}
+#hud{position:fixed;left:10px;top:9px;background:rgba(4,8,14,.7);border:1px solid rgba(255,255,255,.12);padding:9px 11px;border-radius:12px;z-index:4;max-width:68vw;backdrop-filter:blur(7px)}
+#gameTitle{font-size:18px;font-weight:1000;color:#ffd84d;letter-spacing:1px}
+#gameTitle small{font-size:9px;color:white;letter-spacing:2px}
+#stats,#mission{font-size:11px;margin-top:5px;line-height:1.35}
+#mission{color:#ffed9e;border-top:1px solid rgba(255,255,255,.14);padding-top:5px}
+#wanted{position:fixed;right:10px;top:8px;font-size:23px;letter-spacing:2px;text-shadow:0 3px 10px #000;z-index:4}
+#minimap{position:fixed;right:9px;top:45px;width:142px;height:96px;border:2px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(0,0,0,.72);z-index:4}
+#message{position:fixed;left:50%;top:20%;transform:translateX(-50%);z-index:8;background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.15);padding:10px 15px;border-radius:10px;font-weight:900;text-align:center;opacity:0;transition:.2s;max-width:85vw}
+#hint{position:fixed;left:50%;bottom:137px;transform:translateX(-50%);z-index:5;background:rgba(0,0,0,.7);padding:7px 10px;border-radius:9px;font-size:11px;text-align:center;min-width:130px}
+#controls{position:fixed;left:0;right:0;bottom:10px;display:flex;justify-content:space-between;padding:0 10px;z-index:6;pointer-events:none}
+.pad,.actions{pointer-events:auto}
+.pad>button{display:block;margin:auto}
+.pad div{display:flex;gap:5px;margin-top:5px}
+.actions{display:grid;grid-template-columns:72px 72px;gap:7px;align-content:end}
+.ctrl{border:1px solid rgba(255,255,255,.18);background:rgba(7,12,19,.78);color:#fff;border-radius:14px;min-width:57px;min-height:50px;font-weight:900;font-size:12px;touch-action:none;user-select:none;-webkit-user-select:none}
+.panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,91vw);max-height:78vh;overflow:auto;z-index:20;background:rgba(9,15,24,.98);border:1px solid #3c4b61;border-radius:16px;padding:15px;box-shadow:0 20px 70px #000}
+.panelHead{display:flex;justify-content:space-between;align-items:center;color:#ffd84d;font-weight:1000;font-size:21px;margin-bottom:12px}
+.close{border:0;border-radius:50%;width:36px;height:36px;background:#273348;color:#fff;font-size:23px}
+.card{background:#151f2e;border:1px solid #2e3c52;border-radius:11px;padding:11px;margin:8px 0}
+.card h3{margin:0 0 6px;color:#ffe174}.card p{margin:4px 0;color:#cbd6e8;font-size:13px}.price{color:#74efa2!important;font-weight:900}
+.card button,.panelMenu button{width:100%;padding:11px;border:0;border-radius:9px;background:#27364d;color:#fff;font-weight:900;margin-top:6px}
+#speed{position:fixed;right:14px;bottom:138px;z-index:5;font-size:19px;font-weight:1000;text-shadow:0 3px 10px #000;text-align:right}
+#timeHud{position:fixed;right:12px;top:148px;z-index:5;font-size:12px;background:rgba(0,0,0,.6);padding:5px 8px;border-radius:8px}
+@media(min-width:900px){
+ #controls{max-width:900px;margin:auto}
+ #minimap{width:210px;height:140px}
+ #hint{bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <h1 class="logo">CIHAN CITY</h1>
+  <div class="sub">MOBILE v0.2</div>
+  <button class="mainBtn" id="newGame">YENİ OYUN</button>
+  <button class="mainBtn" id="continueGame">DEVAM ET</button>
+</div>
+
+<div id="dead" class="hidden">
+  <h1 class="logo">BAYILDIN</h1>
+  <p>Sağlık merkezinde uyandın.</p>
+  <button class="mainBtn" id="respawn">DEVAM ET</button>
+</div>
+
+<canvas id="game"></canvas>
+<canvas id="minimap" width="220" height="150"></canvas>
+
+<div id="hud">
+  <div id="gameTitle">CIHAN CITY <small>v0.2</small></div>
+  <div id="stats"></div>
+  <div id="mission"></div>
+</div>
+<div id="wanted"></div>
+<div id="timeHud"></div>
+<div id="speed"></div>
+<div id="message"></div>
+<div id="hint"></div>
+
+<div id="phone" class="panel hidden">
+  <div class="panelHead">TELEFON <button class="close" data-close="phone">×</button></div>
+  <div class="panelMenu">
+    <button id="openMissions">Görevler</button>
+    <button id="openGarage">Garaj</button>
+    <button id="openShop">Mağaza</button>
+    <button id="saveBtn">Oyunu Kaydet</button>
+    <button id="helpBtn">Kontroller</button>
+  </div>
+</div>
+
+<div id="missionsPanel" class="panel hidden">
+  <div class="panelHead">GÖREVLER <button class="close" data-close="missionsPanel">×</button></div>
+  <div id="missionList"></div>
+</div>
+
+<div id="garagePanel" class="panel hidden">
+  <div class="panelHead">GARAJ <button class="close" data-close="garagePanel">×</button></div>
+  <div id="garageList"></div>
+</div>
+
+<div id="shopPanel" class="panel hidden">
+  <div class="panelHead">MAĞAZA <button class="close" data-close="shopPanel">×</button></div>
+  <div id="shopList"></div>
+</div>
+
+<div id="helpPanel" class="panel hidden">
+  <div class="panelHead">KONTROLLER <button class="close" data-close="helpPanel">×</button></div>
+  <div class="card">
+    <p>Sol yön tuşları: yürüme ve araç sürme</p>
+    <p>ARAÇ: araca binme veya araçtan inme</p>
+    <p>ATEŞ: silah kullanma</p>
+    <p>NİTRO: yürürken koşma, araçtayken hızlanma</p>
+    <p>TELEFON: görev, mağaza, garaj ve kayıt</p>
+  </div>
+</div>
+
+<div id="controls">
+  <div class="pad">
+    <button class="ctrl" data-k="up">▲</button>
+    <div>
+      <button class="ctrl" data-k="left">◀</button>
+      <button class="ctrl" data-k="down">▼</button>
+      <button class="ctrl" data-k="right">▶</button>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="ctrl" data-k="fire">ATEŞ</button>
+    <button class="ctrl" data-k="use">ARAÇ</button>
+    <button class="ctrl" data-k="run">NİTRO</button>
+    <button class="ctrl" data-k="phone">TELEFON</button>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const map=document.getElementById('minimap'),mctx=map.getContext('2d');
+const $=id=>document.getElementById(id);
+let SW=innerWidth,SH=innerHeight,DPR=devicePixelRatio||1,started=false,last=0;
+function resize(){SW=innerWidth;SH=innerHeight;canvas.width=SW*DPR;canvas.height=SH*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+
+const K={up:0,down:0,left:0,right:0,fire:0,use:0,run:0,phone:0}, edge={};
+document.querySelectorAll('[data-k]').forEach(b=>{
+ const k=b.dataset.k;
+ const on=e=>{e.preventDefault();K[k]=1;edge[k]=1};
+ const off=e=>{e.preventDefault();K[k]=0};
+ b.addEventListener('touchstart',on,{passive:false});b.addEventListener('touchend',off,{passive:false});b.addEventListener('touchcancel',off,{passive:false});
+ b.addEventListener('mousedown',on);b.addEventListener('mouseup',off);b.addEventListener('mouseleave',off);
+});
+addEventListener('keydown',e=>{
+ const q={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',KeyF:'fire',KeyE:'use',ShiftLeft:'run',KeyP:'phone'}[e.code];
+ if(q){K[q]=1;if(!e.repeat)edge[q]=1;e.preventDefault()}
+});
+addEventListener('keyup',e=>{const q={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',KeyF:'fire',KeyE:'use',ShiftLeft:'run',KeyP:'phone'}[e.code];if(q)K[q]=0});
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const WORLD={w:6000,h:4200};
+const roads=[],buildings=[],parks=[],water=[{x:4300,y:0,w:1050,h:900}];
+[400,1100,1900,2800,3700,4700,5600].forEach(v=>roads.push({x:v,y:0,w:180,h:WORLD.h,d:'v'}));
+[350,1050,1800,2550,3300,3950].forEach(v=>roads.push({x:0,y:v,w:WORLD.w,h:170,d:'h'}));
+for(let gx=35;gx<WORLD.w-280;gx+=350)for(let gy=35;gy<WORLD.h-230;gy+=310){
+ const b={x:gx,y:gy,w:220+rnd(0,80),h:170+rnd(0,60),t:Math.floor(rnd(0,5))};
+ const collide=roads.some(r=>b.x<r.x+r.w&&b.x+b.w>r.x&&b.y<r.y+r.h&&b.y+b.h>r.y)||water.some(r=>b.x<r.x+r.w&&b.x+b.w>r.x&&b.y<r.y+r.h&&b.y+b.h>r.y);
+ if(!collide)(Math.random()<.14?parks:buildings).push(b);
+}
+const locations={
+ hospital:{x:5200,y:1300,name:'Sağlık Merkezi'},
+ shop:{x:1250,y:1200,name:'Ekipman Mağazası'},
+ garage:{x:760,y:730,name:'Merkez Garaj'},
+ garage2:{x:4050,y:2860,name:'Sanayi Garajı'}
+};
+
+const player={x:720,y:720,a:0,hp:100,armor:0,money:1200,ammo:45,car:null,weapon:'Tabanca'};
+const colors=['#d94d4d','#318dd2','#e0b33e','#775acb','#3fa36b','#dadada','#ef7f38'];
+const cars=[];
+for(let i=0;i<32;i++)cars.push({id:i,x:rnd(200,WORLD.w-200),y:rnd(200,WORLD.h-200),a:rnd(0,6.28),s:0,color:colors[i%colors.length],model:['Sedan','SUV','Coupe','Pickup','Sport'][i%5],owned:i<2,nitro:100,hp:100,ai:i>7&&Math.random()<.55});
+const npcs=[];for(let i=0;i<90;i++)npcs.push({x:rnd(70,WORLD.w-70),y:rnd(70,WORLD.h-70),a:rnd(0,6.28),police:false,hp:50,s:rnd(.35,.85),cool:0});
+const bullets=[];
+const missions=[
+ {name:'İlk Teslimat',desc:'Merkez garajdan bir araç al ve limana git.',reward:800,start:{x:760,y:730},target:{x:4800,y:620},type:'car'},
+ {name:'Şehir Turu',desc:'Üç kontrol noktasından geç.',reward:1400,start:{x:4800,y:620},points:[{x:850,y:1700},{x:3000,y:2950},{x:5350,y:3600}],type:'points'},
+ {name:'Sıcak Takip',desc:'İki yıldız aranma kazan ve sonra polisten kurtul.',reward:2200,start:{x:5350,y:3600},type:'escape'},
+ {name:'Son Buluşma',desc:'Sanayi garajına ulaş.',reward:3000,start:{x:5350,y:3600},target:{x:4050,y:2860},type:'reach'}
+];
+let missionIndex=0,missionActive=false,missionPoint=0,missionElapsed=0,wanted=0,policeClock=0,worldTime=8*60,msgClock=0,shotClock=0,camera={x:0,y:0};
+
+function currentMission(){return missions[missionIndex]}
+function missionTarget(){
+ const m=currentMission();if(!m||!missionActive)return m?m.start:null;
+ if(m.type==='points')return m.points[missionPoint];return m.target||null;
+}
+function say(t){$('message').textContent=t;$('message').style.opacity=1;msgClock=150}
+function nearestCar(){let best=null,bd=999;cars.forEach(c=>{const d=dist(player,c);if(d<bd){bd=d;best=c}});return bd<80?best:null}
+function at(loc,r=85){return dist(player,loc)<r}
+function closePanels(){document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'))}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
+
+function save(){
+ const data={x:player.x,y:player.y,money:player.money,ammo:player.ammo,armor:player.armor,hp:player.hp,missionIndex,missionActive,missionPoint,wanted,owned:cars.map(c=>c.owned)};
+ localStorage.setItem('cihanCityV02',JSON.stringify(data));say('Oyun kaydedildi');
+}
+function load(){
+ try{
+  const d=JSON.parse(localStorage.getItem('cihanCityV02'));if(!d)return false;
+  Object.assign(player,{x:d.x,y:d.y,money:d.money,ammo:d.ammo,armor:d.armor,hp:d.hp});
+  missionIndex=d.missionIndex||0;missionActive=!!d.missionActive;missionPoint=d.missionPoint||0;wanted=d.wanted||0;
+  (d.owned||[]).forEach((v,i)=>{if(cars[i])cars[i].owned=v});return true;
+ }catch{return false}
+}
+function startGame(fresh){
+ if(fresh)localStorage.removeItem('cihanCityV02');else load();
+ $('start').classList.add('hidden');started=true;last=performance.now();requestAnimationFrame(loop)
+}
+$('newGame').onclick=()=>startGame(true);
+$('continueGame').onclick=()=>startGame(false);
+$('respawn').onclick=()=>{$('dead').classList.add('hidden');started=true;last=performance.now();requestAnimationFrame(loop)};
+
+$('saveBtn').onclick=()=>save();
+$('helpBtn').onclick=()=>{$('helpPanel').classList.remove('hidden')};
+$('openMissions').onclick=()=>{
+ $('missionList').innerHTML=missions.map((m,i)=>`<div class="card"><h3>${i<missionIndex?'✓ ':''}${m.name}</h3><p>${m.desc}</p><p class="price">Ödül: ₺${m.reward}</p></div>`).join('');
+ $('missionsPanel').classList.remove('hidden');
+};
+$('openGarage').onclick=()=>{
+ const owned=cars.filter(c=>c.owned);
+ $('garageList').innerHTML=owned.length?owned.map(c=>`<div class="card"><h3>${c.model}</h3><p>Sağlık: ${Math.round(c.hp)}%</p><p>Nitro: ${Math.round(c.nitro)}%</p><button onclick="selectCar(${c.id})">Aracı Çağır</button></div>`).join(''):'<div class="card"><p>Garajında araç yok.</p></div>';
+ $('garagePanel').classList.remove('hidden');
+};
+window.selectCar=id=>{
+ const c=cars.find(v=>v.id===id);c.x=player.x+90;c.y=player.y;c.a=0;say(c.model+' yanına getirildi');closePanels()
+};
+function shopItems(){
+ return [
+  {name:'30 Mermi',price:300,act:()=>player.ammo+=30},
+  {name:'Tam Zırh',price:700,act:()=>player.armor=100},
+  {name:'Sağlık Paketi',price:450,act:()=>player.hp=Math.min(100,player.hp+50)},
+  {name:'Sport Araç',price:4500,act:()=>{const c=cars.find(v=>!v.owned);if(c){c.owned=true;c.model='Sport';c.color='#f05a37';c.x=player.x+100;c.y=player.y}}}
+ ];
+}
+$('openShop').onclick=()=>{
+ $('shopList').innerHTML='';
+ shopItems().forEach((it,i)=>{$('shopList').innerHTML+=`<div class="card"><h3>${it.name}</h3><p class="price">₺${it.price}</p><button onclick="buyItem(${i})">Satın Al</button></div>`});
+ $('shopPanel').classList.remove('hidden');
+};
+window.buyItem=i=>{const it=shopItems()[i];if(player.money<it.price)return say('Yeterli paran yok');player.money-=it.price;it.act();say(it.name+' satın alındı')};
+
+function interact(){
+ if(player.car){player.car.ai=false;player.car=null;player.x+=55;player.y+=20;return}
+ const c=nearestCar();if(c){player.car=c;c.ai=false;if(!c.owned){wanted=Math.max(1,wanted);say('Araç çalındı! Polis seni arıyor.')}return}
+ const m=currentMission();
+ if(m&&!missionActive&&dist(player,m.start)<90){missionActive=true;missionPoint=0;missionElapsed=0;say('Görev başladı: '+m.name);return}
+ if(at(locations.shop)||at(locations.hospital)){$('shopPanel').classList.remove('hidden');return}
+ if(at(locations.garage)||at(locations.garage2)){$('garagePanel').classList.remove('hidden');return}
+}
+
+function shoot(now){
+ if(player.car||player.ammo<=0||now-shotClock<210)return;
+ shotClock=now;player.ammo--;wanted=Math.max(1,wanted);
+ bullets.push({x:player.x+Math.cos(player.a)*20,y:player.y+Math.sin(player.a)*20,vx:Math.cos(player.a)*11,vy:Math.sin(player.a)*11,l:80,from:true});
+}
+
+function updateMission(){
+ const m=currentMission();if(!m||!missionActive)return;
+ missionElapsed++;
+ if(m.type==='car'&&player.car&&dist(player,m.target)<80)completeMission();
+ else if(m.type==='points'){
+  const t=m.points[missionPoint];
+  if(dist(player,t)<80){missionPoint++;say('Kontrol noktası tamamlandı');if(missionPoint>=m.points.length)completeMission()}
+ } else if(m.type==='escape'){
+  if(missionElapsed>200&&wanted===0)completeMission();
+ } else if(m.type==='reach'&&dist(player,m.target)<80)completeMission();
+}
+function completeMission(){
+ const m=currentMission();player.money+=m.reward;say('Görev tamamlandı: +₺'+m.reward);missionIndex++;missionActive=false;missionPoint=0;save()
+}
+
+function update(dt,now){
+ worldTime=(worldTime+dt*.006)%1440;
+ if(edge.phone){$('phone').classList.toggle('hidden')}
+ if(edge.use)interact();
+ if(K.fire)shoot(now);
+
+ if(player.car){
+  const c=player.car;
+  if(K.up)c.s+=.19;if(K.down)c.s-=.15;
+  const boost=K.run&&c.nitro>0,max=boost?12:8.2;if(boost)c.nitro=Math.max(0,c.nitro-.55);else c.nitro=Math.min(100,c.nitro+.07);
+  c.s=clamp(c.s,-3.3,max);c.s*=.986;
+  const st=.037*(Math.abs(c.s)/8.2+.22);if(K.left)c.a-=st*Math.sign(c.s||1);if(K.right)c.a+=st*Math.sign(c.s||1);
+  c.x=clamp(c.x+Math.cos(c.a)*c.s,20,WORLD.w-20);c.y=clamp(c.y+Math.sin(c.a)*c.s,20,WORLD.h-20);player.x=c.x;player.y=c.y;player.a=c.a;
+ }else{
+  let dx=K.right-K.left,dy=K.down-K.up;
+  if(dx||dy){const l=Math.hypot(dx,dy),sp=K.run?5.2:3.15;player.x+=dx/l*sp;player.y+=dy/l*sp;player.a=Math.atan2(dy,dx)}
+  player.x=clamp(player.x,15,WORLD.w-15);player.y=clamp(player.y,15,WORLD.h-15);
+ }
+
+ cars.forEach(c=>{
+  if(c.ai&&c!==player.car){c.s=2.3;c.x+=Math.cos(c.a)*c.s;c.y+=Math.sin(c.a)*c.s;if(c.x<50||c.x>WORLD.w-50||c.y<50||c.y>WORLD.h-50)c.a+=Math.PI}
+ });
+ npcs.forEach(n=>{
+  if(n.police){n.a=Math.atan2(player.y-n.y,player.x-n.x);n.x+=Math.cos(n.a)*1.3;n.y+=Math.sin(n.a)*1.3;n.cool--;if(dist(n,player)<230&&n.cool<=0){bullets.push({x:n.x,y:n.y,vx:Math.cos(n.a)*7,vy:Math.sin(n.a)*7,l:90,from:false});n.cool=95}}
+  else{if(Math.random()<.008)n.a+=rnd(-1.1,1.1);n.x+=Math.cos(n.a)*n.s;n.y+=Math.sin(n.a)*n.s}
+  n.x=clamp(n.x,15,WORLD.w-15);n.y=clamp(n.y,15,WORLD.h-15);
+ });
+ policeClock++;
+ if(wanted>0&&policeClock>260){policeClock=0;for(let i=0;i<wanted;i++)npcs.push({x:clamp(player.x+rnd(-420,420),20,WORLD.w-20),y:clamp(player.y+rnd(-420,420),20,WORLD.h-20),a:0,police:true,hp:90,s:1,cool:0})}
+ if(wanted>0&&Math.random()<.00045)wanted--;
+
+ bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy;b.l--;
+  if(b.from)npcs.forEach(n=>{if(n.hp>0&&Math.hypot(b.x-n.x,b.y-n.y)<16){n.hp-=35;b.l=0;if(n.police)wanted=Math.min(5,wanted+1)}});
+  else if(Math.hypot(b.x-player.x,b.y-player.y)<18){let dmg=12;if(player.armor>0){const a=Math.min(dmg,player.armor);player.armor-=a;dmg-=a}player.hp-=dmg;b.l=0}
+ });
+ for(let i=bullets.length-1;i>=0;i--)if(bullets[i].l<=0)bullets.splice(i,1);
+ for(let i=npcs.length-1;i>=0;i--)if(npcs[i].hp<=0)npcs.splice(i,1);
+
+ if(player.hp<=0){started=false;player.hp=100;player.armor=0;player.money=Math.max(0,player.money-500);player.x=locations.hospital.x;player.y=locations.hospital.y;wanted=0;$('dead').classList.remove('hidden')}
+ updateMission();
+ camera.x=clamp(player.x-SW/2,0,Math.max(0,WORLD.w-SW));camera.y=clamp(player.y-SH/2,0,Math.max(0,WORLD.h-SH));
+ updateUI();
+ if(msgClock>0){msgClock--;if(!msgClock)$('message').style.opacity=0}
+ Object.keys(edge).forEach(k=>delete edge[k]);
+}
+
+function updateUI(){
+ $('stats').innerHTML=`Can <b>${Math.round(player.hp)}</b> • Zırh <b>${Math.round(player.armor)}</b> • Para <b>₺${player.money}</b> • Mermi <b>${player.ammo}</b>`;
+ const m=currentMission();
+ $('mission').textContent=!m?'Tüm ana görevler tamamlandı.':missionActive?`${m.name}: ${m.desc}`:`Yeni görev: ${m.name} başlangıç noktasına git.`;
+ $('wanted').textContent='★'.repeat(wanted)+'☆'.repeat(5-wanted);
+ $('speed').textContent=player.car?`${Math.round(Math.abs(player.car.s)*18)} km/s\n${player.car.model}`:'';
+ const hh=Math.floor(worldTime/60).toString().padStart(2,'0'),mm=Math.floor(worldTime%60).toString().padStart(2,'0');$('timeHud').textContent=hh+':'+mm;
+ let hint='';
+ if(player.car)hint='ARAÇ: araçtan in • NİTRO: hızlan';
+ else if(nearestCar())hint='ARAÇ: yakındaki araca bin';
+ else if(currentMission()&&!missionActive&&dist(player,currentMission().start)<100)hint='ARAÇ: görevi başlat';
+ else if(at(locations.shop)||at(locations.hospital))hint='ARAÇ: mağazayı aç';
+ else if(at(locations.garage)||at(locations.garage2))hint='ARAÇ: garajı aç';
+ $('hint').textContent=hint;
+ drawMap();
+}
+
+function roadDraw(r){
+ ctx.fillStyle='#3a3f47';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#e4cd63';ctx.lineWidth=4;ctx.setLineDash([30,24]);ctx.beginPath();
+ if(r.d==='h'){ctx.moveTo(r.x,r.y+r.h/2);ctx.lineTo(r.x+r.w,r.y+r.h/2)}else{ctx.moveTo(r.x+r.w/2,r.y);ctx.lineTo(r.x+r.w/2,r.y+r.h)}
+ ctx.stroke();ctx.setLineDash([]);
+}
+function drawWorld(now){
+ ctx.fillStyle='#3f7549';ctx.fillRect(0,0,WORLD.w,WORLD.h);
+ water.forEach(w=>{ctx.fillStyle='#225e84';ctx.fillRect(w.x,w.y,w.w,w.h);ctx.strokeStyle='rgba(255,255,255,.15)';for(let y=w.y+20;y<w.y+w.h;y+=35){ctx.beginPath();ctx.moveTo(w.x,y);ctx.lineTo(w.x+w.w,y);ctx.stroke()}});
+ parks.forEach(p=>{ctx.fillStyle='#467e3d';ctx.fillRect(p.x,p.y,p.w,p.h);for(let i=0;i<8;i++){ctx.fillStyle='#244d2b';ctx.beginPath();ctx.arc(p.x+(i*61)%p.w,p.y+(i*97)%p.h,12,0,6.28);ctx.fill()}});
+ roads.forEach(roadDraw);
+ buildings.forEach((b,i)=>{const cs=['#786c65','#667a8b','#897e68','#6f647a','#867157'];ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(b.x+12,b.y+12,b.w,b.h);ctx.fillStyle=cs[b.t];ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='rgba(255,226,150,.55)';for(let xx=b.x+20;xx<b.x+b.w-15;xx+=40)for(let yy=b.y+25;yy<b.y+b.h-15;yy+=35)ctx.fillRect(xx,yy,18,13)});
+ Object.values(locations).forEach((l,i)=>{ctx.fillStyle=['#e75965','#8a67d2','#e7b444','#e7b444'][i];ctx.beginPath();ctx.arc(l.x,l.y,18+Math.sin(now/220)*3,0,6.28);ctx.fill()});
+ const t=missionTarget();if(t){ctx.strokeStyle='#ffe34f';ctx.lineWidth=6;ctx.beginPath();ctx.arc(t.x,t.y,35+Math.sin(now/160)*5,0,6.28);ctx.stroke()}
+}
+function drawEntities(){
+ cars.forEach(c=>{ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(-25,-10,58,30);ctx.fillStyle=c.color;ctx.fillRect(-29,-15,58,30);ctx.fillStyle='#a7d4e7';ctx.fillRect(-8,-12,23,24);ctx.fillStyle='#111';[-21,12].forEach(xx=>{ctx.fillRect(xx,-19,13,6);ctx.fillRect(xx,13,13,6)});ctx.restore()});
+ npcs.forEach(n=>{ctx.fillStyle=n.police?'#2451a0':'#d7ad88';ctx.beginPath();ctx.arc(n.x,n.y,10,0,6.28);ctx.fill();ctx.fillStyle=n.police?'#163369':'#5a4c74';ctx.fillRect(n.x-7,n.y+7,14,18)});
+ bullets.forEach(b=>{ctx.fillStyle=b.from?'#ffe36d':'#ff6e6e';ctx.beginPath();ctx.arc(b.x,b.y,3,0,6.28);ctx.fill()});
+ if(!player.car){ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.a);ctx.fillStyle='#1b2948';ctx.fillRect(-9,2,18,25);ctx.fillStyle='#e4b78e';ctx.beginPath();ctx.arc(0,-6,10,0,6.28);ctx.fill();ctx.fillStyle='#252a32';ctx.fillRect(6,-2,18,4);ctx.restore()}
+}
+function drawMap(){
+ const w=map.width,h=map.height;mctx.clearRect(0,0,w,h);mctx.fillStyle='#17321d';mctx.fillRect(0,0,w,h);mctx.fillStyle='#50555d';roads.forEach(r=>mctx.fillRect(r.x/WORLD.w*w,r.y/WORLD.h*h,r.w/WORLD.w*w,r.h/WORLD.h*h));
+ mctx.fillStyle='#44b9ff';mctx.fillRect(player.x/WORLD.w*w-3,player.y/WORLD.h*h-3,6,6);
+ const t=missionTarget();if(t){mctx.fillStyle='#ffe23f';mctx.beginPath();mctx.arc(t.x/WORLD.w*w,t.y/WORLD.h*h,4,0,6.28);mctx.fill()}
+}
+function draw(now){
+ ctx.clearRect(0,0,SW,SH);ctx.save();ctx.translate(-camera.x,-camera.y);drawWorld(now);drawEntities();ctx.restore();
+ const hour=worldTime/60,dark=hour<6?0.48:hour<8?(8-hour)*.24:hour>18?Math.min(.48,(hour-18)*.12):0;
+ if(dark>0){ctx.fillStyle=`rgba(7,18,40,${dark})`;ctx.fillRect(0,0,SW,SH)}
+ if(player.hp<35){ctx.fillStyle='rgba(150,0,0,.13)';ctx.fillRect(0,0,SW,SH)}
+}
+function loop(now){
+ if(!started)return;const dt=Math.min(40,now-last);last=now;update(dt,now);draw(now);requestAnimationFrame(loop)
+}
+</script>
+</body>
+</html>
