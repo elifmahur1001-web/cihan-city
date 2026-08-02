@@ -609,6 +609,137 @@ export class Car {
     }
     // BMW E30 özel görünümü
     if (this.model === "E30") {
+  const w = 88;
+  const h = 38;
+
+  // Gölge
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(4, 5, w * 0.56, h * 0.68, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tekerlekler
+  ctx.fillStyle = "#0b0b0c";
+  ctx.fillRect(-30, -h / 2 - 4, 17, 6);
+  ctx.fillRect(15, -h / 2 - 4, 17, 6);
+  ctx.fillRect(-30, h / 2 - 2, 17, 6);
+  ctx.fillRect(15, h / 2 - 2, 17, 6);
+
+  // Ana köşeli E30 gövdesi
+  ctx.fillStyle = this.color;
+  ctx.beginPath();
+  ctx.moveTo(-w / 2 + 4, -h / 2);
+  ctx.lineTo(w / 2 - 7, -h / 2);
+  ctx.lineTo(w / 2, -h / 2 + 6);
+  ctx.lineTo(w / 2, h / 2 - 6);
+  ctx.lineTo(w / 2 - 7, h / 2);
+  ctx.lineTo(-w / 2 + 4, h / 2);
+  ctx.lineTo(-w / 2, h / 2 - 5);
+  ctx.lineTo(-w / 2, -h / 2 + 5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Siyah ön tampon
+  ctx.fillStyle = "#121316";
+  ctx.fillRect(w / 2 - 5, -h / 2 + 3, 5, h - 6);
+
+  // Siyah arka tampon
+  ctx.fillRect(-w / 2, -h / 2 + 4, 5, h - 8);
+
+  // Kaput çizgisi
+  ctx.strokeStyle = "rgba(0,0,0,0.32)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(13, -h / 2 + 3);
+  ctx.lineTo(w / 2 - 8, -h / 2 + 3);
+  ctx.moveTo(13, h / 2 - 3);
+  ctx.lineTo(w / 2 - 8, h / 2 - 3);
+  ctx.stroke();
+
+  // Bagaj çizgisi
+  ctx.beginPath();
+  ctx.moveTo(-w / 2 + 7, -h / 2 + 3);
+  ctx.lineTo(-17, -h / 2 + 3);
+  ctx.moveTo(-w / 2 + 7, h / 2 - 3);
+  ctx.lineTo(-17, h / 2 - 3);
+  ctx.stroke();
+
+  // Kabin
+  ctx.fillStyle = "#202c33";
+  ctx.beginPath();
+  ctx.moveTo(-16, -h / 2 + 5);
+  ctx.lineTo(15, -h / 2 + 5);
+  ctx.lineTo(20, -h / 2 + 9);
+  ctx.lineTo(20, h / 2 - 9);
+  ctx.lineTo(15, h / 2 - 5);
+  ctx.lineTo(-16, h / 2 - 5);
+  ctx.lineTo(-21, h / 2 - 9);
+  ctx.lineTo(-21, -h / 2 + 9);
+  ctx.closePath();
+  ctx.fill();
+
+  // Ön ve arka cam
+  ctx.fillStyle = "#6f9cad";
+  ctx.fillRect(10, -h / 2 + 7, 7, h - 14);
+  ctx.fillRect(-18, -h / 2 + 7, 7, h - 14);
+
+  // Tavan
+  ctx.fillStyle = "#9ec0cd";
+  ctx.fillRect(-9, -h / 2 + 7, 17, h - 14);
+
+  // Cam ayırıcıları
+  ctx.fillStyle = "#1a2328";
+  ctx.fillRect(-11, -h / 2 + 6, 3, h - 12);
+  ctx.fillRect(8, -h / 2 + 6, 3, h - 12);
+
+  // Yan aynalar
+  ctx.fillStyle = "#111214";
+  ctx.fillRect(13, -h / 2 - 3, 7, 4);
+  ctx.fillRect(13, h / 2 - 1, 7, 4);
+
+  // BMW böbrek ızgarası
+  ctx.fillStyle = "#050506";
+  ctx.fillRect(w / 2 - 7, -5, 4, 4);
+  ctx.fillRect(w / 2 - 7, 1, 4, 4);
+
+  // Dört yuvarlak ön far
+  ctx.fillStyle = "#fff4b0";
+
+  const headX = w / 2 - 4;
+  const headYs = [-13, -5, 5, 13];
+
+  for (const y of headYs) {
+    ctx.beginPath();
+    ctx.arc(headX, y, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Arka stoplar
+  ctx.fillStyle = this.brakeLight > 0.1 ? "#ff2424" : "#9b1216";
+  ctx.fillRect(-w / 2 + 1, -h / 2 + 5, 5, 11);
+  ctx.fillRect(-w / 2 + 1, h / 2 - 16, 5, 11);
+
+  // BMW amblemi
+  ctx.fillStyle = "#111";
+  ctx.beginPath();
+  ctx.arc(25, 0, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#4da3d9";
+  ctx.beginPath();
+  ctx.arc(25, 0, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Araç etiketi
+  ctx.rotate(-this.angle);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 11px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("BMW E30", 0, -30);
+
+  ctx.restore();
+  return;
+}if (this.model === "E30") {
       // Ana gövde
       ctx.fillStyle = this.color;
       ctx.beginPath();
