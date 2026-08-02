@@ -55,7 +55,7 @@ const CAR_SPECS = {
     height: 33
   },
 
-  Sport: {
+    Sport: {
     acceleration: 0.24,
     brake: 0.25,
     reverse: 3.8,
@@ -63,8 +63,20 @@ const CAR_SPECS = {
     nitroSpeed: 14.2,
     steering: 0.044,
     grip: 0.981,
-    width: 60,
-    height: 27
+    width: 72,
+    height: 34
+  },
+
+  E30: {
+    acceleration: 0.27,
+    brake: 0.28,
+    reverse: 4.0,
+    maxSpeed: 11.5,
+    nitroSpeed: 15.5,
+    steering: 0.043,
+    grip: 0.983,
+    width: 78,
+    height: 36
   }
 };
 
