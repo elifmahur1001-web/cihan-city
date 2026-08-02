@@ -42,12 +42,31 @@ class Game {
 
   populate(){
     const colors=["#d94d4d","#318dd2","#e0b33e","#775acb","#3fa36b","#dadada","#ef7f38"];
-    const models=["Sedan","SUV","Coupe","Pickup","Sport"];
+    const models=["Sedan","SUV","Coupe","Pickup","Sport","E30"];
     for(let i=0;i<32;i++){
       this.cars.push(new Car(i,random(200,this.width-200),random(200,this.height-200),colors[i%colors.length],models[i%models.length],i<2,i>7&&Math.random()<0.55));
     }
-    for(let i=0;i<90;i++)this.npcs.push(new NPC(random(70,this.width-70),random(70,this.height-70)));
-  }
+   for(let i=0;i<32;i++){
+  const model = i === 0
+    ? "E30"
+    : models[i % models.length];
+
+  const color = model === "E30"
+    ? "#b51f27"
+    : colors[i % colors.length];
+
+  const car = new Car(
+    i,
+    i === 0 ? this.player.x + 110 : random(200,this.width-200),
+    i === 0 ? this.player.y : random(200,this.height-200),
+    color,
+    model,
+    i === 0 || i === 1,
+    i > 7 && Math.random() < 0.55
+  );
+
+  this.cars.push(car);
+} 
 
   bind(){
     addEventListener("resize",()=>this.resize());
