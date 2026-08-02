@@ -202,15 +202,25 @@ class Game {
 
     this.bullets=this.bullets.filter(bullet=>bullet.life>0);
     this.npcs=this.npcs.filter(npc=>npc.health>0);
+  if (this.player.health <= 0) {
+  const hospital = this.city.locations.hospital;
 
-    if(this.player.health<=0){
-      const hospital=this.city.locations.hospital;
-      this.player.health=100;this.player.armor=0;
-      this.player.money=Math.max(0,this.player.money-500);
-      this.player.x=hospital.x;this.player.y=hospital.y;
-      this.player.car=null;this.wanted=0;
-      this.ui.say("Sağlık merkezinde uyandın. ₺500 kesildi.");
-    }
+  this.player.health = 100;
+  this.player.armor = 50;
+  this.player.money = Math.max(0, this.player.money - 500);
+
+  this.player.x = hospital.x;
+  this.player.y = hospital.y;
+  this.player.car = null;
+  this.wanted = 0;
+
+  // Hastanede tekrar vurulmayı engelle
+  this.bullets = [];
+  this.npcs = this.npcs.filter(npc => !npc.police);
+  this.policeTimer = 0;
+
+  this.ui.say("Sağlık merkezinde uyandın. ₺500 kesildi.");
+}
   }
 
   buyVehicle(){
