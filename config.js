@@ -1,0 +1,9 @@
+export const CONFIG = {
+  WORLD_WIDTH: 6000,
+  WORLD_HEIGHT: 4200,
+  PLAYER_SPEED: 3.15,
+  PLAYER_RUN_SPEED: 5.2,
+  CAR_MAX_SPEED: 8.2,
+  CAR_NITRO_SPEED: 12,
+  SAVE_KEY: "cihan_city_v1_save"
+};

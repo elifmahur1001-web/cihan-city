@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0b1017">
+  <title>Cihan City v1.0</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="startScreen">
+    <h1>CIHAN CITY</h1>
+    <p>MOBILE v1.0</p>
+    <button id="newGameButton">YENİ OYUN</button>
+    <button id="continueButton">DEVAM ET</button>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+  <canvas id="miniMap" width="220" height="150"></canvas>
+
+  <section id="hud">
+    <div class="brand">CIHAN CITY <small>v1.0</small></div>
+    <div id="stats"></div>
+    <div id="missionText"></div>
+  </section>
+
+  <div id="wanted"></div>
+  <div id="clock"></div>
+  <div id="speed"></div>
+  <div id="message"></div>
+  <div id="hint"></div>
+
+  <section id="phonePanel" class="panel hidden">
+    <header>TELEFON <button data-close="phonePanel">×</button></header>
+    <button id="missionsButton">Görevler</button>
+    <button id="garageButton">Garaj</button>
+    <button id="shopButton">Mağaza</button>
+    <button id="saveButton">Oyunu Kaydet</button>
+    <button id="helpButton">Kontroller</button>
+  </section>
+
+  <section id="listPanel" class="panel hidden">
+    <header><span id="listTitle">MENÜ</span><button data-close="listPanel">×</button></header>
+    <div id="listContent"></div>
+  </section>
+
+  <section id="helpPanel" class="panel hidden">
+    <header>KONTROLLER <button data-close="helpPanel">×</button></header>
+    <div class="card">
+      <p><b>Sol tuşlar:</b> Yürüme ve araç sürme</p>
+      <p><b>ARAÇ:</b> Araca binme, inme ve etkileşim</p>
+      <p><b>ATEŞ:</b> Silah kullanma</p>
+      <p><b>NİTRO:</b> Koşma veya araç hızlandırma</p>
+      <p><b>TELEFON:</b> Görev, garaj, mağaza ve kayıt</p>
+    </div>
+  </section>
+
+  <div id="mobileControls">
+    <div class="movePad">
+      <button data-key="up">▲</button>
+      <div>
+        <button data-key="left">◀</button>
+        <button data-key="down">▼</button>
+        <button data-key="right">▶</button>
+      </div>
+    </div>
+
+    <div class="actionPad">
+      <button data-key="fire">ATEŞ</button>
+      <button data-key="use">ARAÇ</button>
+      <button data-key="run">NİTRO</button>
+      <button data-key="phone">TELEFON</button>
+    </div>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

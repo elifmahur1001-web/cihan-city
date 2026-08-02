@@ -1,0 +1,8 @@
+{
+  "name": "Cihan City Mobile",
+  "short_name": "Cihan City",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070b10",
+  "theme_color": "#0b1017"
+}
